@@ -175,23 +175,31 @@ const isoTs = (hoursAgo = 0) =>
   new Date(Date.now() - hoursAgo * 3600 * 1000).toISOString();
 
 const SEED_SHIFTS = [
-  { id: 's1', postedBy: 'c3', date: isoDay(4),  time: '06:00', className: 'CrossFit WOD',  reason: 'Medical appointment',       status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(48) },
-  { id: 's2', postedBy: 'c2', date: isoDay(6),  time: '18:30', className: 'Weightlifting', reason: 'Family commitment',         status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(24) },
-  { id: 's3', postedBy: 'c4', date: isoDay(2),  time: '12:00', className: 'Open Gym',      reason: 'Day job scheduling clash',  status: 'claimed', claimedBy: 'c5',  claimedAt: isoTs(10),   createdAt: isoTs(72) },
-  { id: 's4', postedBy: 'c1', date: isoDay(9),  time: '19:30', className: 'Gymnastics',    reason: 'Attending a wedding',       status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(5) },
-  { id: 's5', postedBy: 'm1', date: isoDay(7),  time: '07:30', className: 'CrossFit WOD',  reason: 'Travelling for a course',   status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(3) },
-  { id: 's6', postedBy: 'c7', date: isoDay(5),  time: '17:00', className: 'Mobility',      reason: 'Parent-teacher evening',    status: 'claimed', claimedBy: 'c8',  claimedAt: isoTs(30),   createdAt: isoTs(90) },
+  { id: 's1', groupId: 'g1', postedBy: 'c3', date: isoDay(4),  time: '06:00', className: 'CrossFit WOD',  reason: 'Medical appointment',       status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(48) },
+  { id: 's2', groupId: 'g2', postedBy: 'c2', date: isoDay(6),  time: '18:30', className: 'Weightlifting', reason: 'Family commitment',         status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(24) },
+  { id: 's3', groupId: 'g3', postedBy: 'c4', date: isoDay(2),  time: '12:00', className: 'Open Gym',      reason: 'Day job scheduling clash',  status: 'claimed', claimedBy: 'c5',  claimedAt: isoTs(10),   createdAt: isoTs(72) },
+  { id: 's4', groupId: 'g4', postedBy: 'c1', date: isoDay(9),  time: '19:30', className: 'Gymnastics',    reason: 'Attending a wedding',       status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(5) },
+  // g5 — Peter posts 3 back-to-back CrossFit WODs for one morning (same day, +1hr each)
+  { id: 's5a', groupId: 'g5', postedBy: 'm1', date: isoDay(7),  time: '07:00', className: 'CrossFit WOD',  reason: 'Travelling for a course',   status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(3) },
+  { id: 's5b', groupId: 'g5', postedBy: 'm1', date: isoDay(7),  time: '08:00', className: 'CrossFit WOD',  reason: 'Travelling for a course',   status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(3) },
+  { id: 's5c', groupId: 'g5', postedBy: 'm1', date: isoDay(7),  time: '09:00', className: 'CrossFit WOD',  reason: 'Travelling for a course',   status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(3) },
+  { id: 's6', groupId: 'g6', postedBy: 'c7', date: isoDay(5),  time: '17:00', className: 'Mobility',      reason: 'Parent-teacher evening',    status: 'claimed', claimedBy: 'c8',  claimedAt: isoTs(30),   createdAt: isoTs(90) },
+  // g7 — Remco on a weekend trip: 3 classes on different days, showcasing the multi-day pattern
+  { id: 's7a', groupId: 'g7', postedBy: 'c6', date: isoDay(3),  time: '18:30', className: 'Weightlifting', reason: 'Weekend away — back Monday', status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(2) },
+  { id: 's7b', groupId: 'g7', postedBy: 'c6', date: isoDay(4),  time: '10:00', className: 'CrossFit WOD',  reason: 'Weekend away — back Monday', status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(2) },
+  { id: 's7c', groupId: 'g7', postedBy: 'c6', date: isoDay(5),  time: '17:00', className: 'Open Gym',      reason: 'Weekend away — back Monday', status: 'open',    claimedBy: null,  claimedAt: null,        createdAt: isoTs(2) },
 ];
 
 const SEED_NOTIFS = [
-  { id: 'n1', type: 'posted',  aboutShiftId: 's1', byCoachId: 'c3', at: isoTs(48) },
-  { id: 'n2', type: 'posted',  aboutShiftId: 's2', byCoachId: 'c2', at: isoTs(24) },
-  { id: 'n3', type: 'posted',  aboutShiftId: 's3', byCoachId: 'c4', at: isoTs(72) },
-  { id: 'n4', type: 'claimed', aboutShiftId: 's3', byCoachId: 'c5', at: isoTs(10) },
-  { id: 'n5', type: 'posted',  aboutShiftId: 's4', byCoachId: 'c1', at: isoTs(5) },
-  { id: 'n6', type: 'posted',  aboutShiftId: 's5', byCoachId: 'm1', at: isoTs(3) },
-  { id: 'n7', type: 'posted',  aboutShiftId: 's6', byCoachId: 'c7', at: isoTs(90) },
-  { id: 'n8', type: 'claimed', aboutShiftId: 's6', byCoachId: 'c8', at: isoTs(30) },
+  { id: 'n1', type: 'posted',  aboutShiftIds: ['s1'],  groupId: 'g1', byCoachId: 'c3', at: isoTs(48) },
+  { id: 'n2', type: 'posted',  aboutShiftIds: ['s2'],  groupId: 'g2', byCoachId: 'c2', at: isoTs(24) },
+  { id: 'n3', type: 'posted',  aboutShiftIds: ['s3'],  groupId: 'g3', byCoachId: 'c4', at: isoTs(72) },
+  { id: 'n4', type: 'claimed', aboutShiftIds: ['s3'],  groupId: 'g3', byCoachId: 'c5', at: isoTs(10) },
+  { id: 'n5', type: 'posted',  aboutShiftIds: ['s4'],  groupId: 'g4', byCoachId: 'c1', at: isoTs(5) },
+  { id: 'n6', type: 'posted',  aboutShiftIds: ['s5a','s5b','s5c'], groupId: 'g5', byCoachId: 'm1', at: isoTs(3) },
+  { id: 'n7', type: 'posted',  aboutShiftIds: ['s6'],  groupId: 'g6', byCoachId: 'c7', at: isoTs(90) },
+  { id: 'n8', type: 'claimed', aboutShiftIds: ['s6'],  groupId: 'g6', byCoachId: 'c8', at: isoTs(30) },
+  { id: 'n9', type: 'posted',  aboutShiftIds: ['s7a','s7b','s7c'], groupId: 'g7', byCoachId: 'c6', at: isoTs(2) },
 ];
 
 // ----------------------------------------------------------------
@@ -199,6 +207,20 @@ const SEED_NOTIFS = [
 // ----------------------------------------------------------------
 const uid = () => Math.random().toString(36).slice(2, 10);
 const coachById = (id) => COACHES.find((c) => c.id === id);
+
+// Cluster shifts by groupId (falling back to shift id for legacy/standalone shifts).
+// Returns an array of groups; each group is an array of shifts sorted by date+time.
+const groupShifts = (shiftsArr) => {
+  const map = new Map();
+  for (const s of shiftsArr) {
+    const key = s.groupId || s.id;
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(s);
+  }
+  const groups = Array.from(map.values());
+  groups.forEach((g) => g.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)));
+  return groups;
+};
 
 const formatDay = (iso) => {
   const d = new Date(iso + 'T00:00:00');
@@ -221,6 +243,22 @@ const hoursUntil = (dateISO, timeStr) => {
   return (target.getTime() - Date.now()) / 3600000;
 };
 const isPast = (dateISO, timeStr) => hoursUntil(dateISO, timeStr) < 0;
+const shiftDateISO = (iso, days) => {
+  // Parse/format using local date components to avoid a UTC roundtrip bug
+  // that knocks dates back by a day in timezones ahead of UTC (e.g. Amsterdam).
+  const [y, m, d] = iso.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  date.setDate(date.getDate() + days);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
+const addHoursToTime = (timeStr, hours) => {
+  const [h, m] = timeStr.split(':').map(Number);
+  const newH = (h + hours) % 24;
+  return `${String(newH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+};
 
 // ----------------------------------------------------------------
 // Main App
@@ -284,53 +322,97 @@ function App() {
   };
 
   // ---- Actions
-  const postShift = (data) => {
-    const shift = {
-      id: uid(),
-      postedBy: currentUserId,
-      date: data.date,
-      time: data.time,
-      className: data.className,
-      reason: data.reason,
-      status: 'open',
-      claimedBy: null,
-      claimedAt: null,
-      createdAt: new Date().toISOString(),
-    };
-    setShifts((prev) => [shift, ...prev]);
+  const postShift = (entries) => {
+    // `entries` is always an array of rows. Each row can have `shifts > 1` which
+    // means "N back-to-back hourly classes starting at `time`".
+    // All shifts from a single submission get the same groupId — displayed as ONE request.
+    const groupId = uid();
+    const createdAt = new Date().toISOString();
+    const allShifts = [];
+    entries.forEach((entry) => {
+      const count = Math.max(1, Math.min(6, Number(entry.shifts) || 1));
+      for (let i = 0; i < count; i++) {
+        allShifts.push({
+          id: uid(),
+          groupId,
+          postedBy: currentUserId,
+          date: entry.date,
+          time: i === 0 ? entry.time : addHoursToTime(entry.time, i),
+          className: entry.className,
+          reason: entry.reason,
+          status: 'open',
+          claimedBy: null,
+          claimedAt: null,
+          createdAt,
+        });
+      }
+    });
+    allShifts.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+    setShifts((prev) => [...allShifts, ...prev]);
     setNotifs((prev) => [
-      { id: uid(), type: 'posted', aboutShiftId: shift.id, byCoachId: currentUserId, at: shift.createdAt },
+      {
+        id: uid(),
+        type: 'posted',
+        aboutShiftIds: allShifts.map((s) => s.id),
+        groupId,
+        byCoachId: currentUserId,
+        at: createdAt,
+      },
       ...prev,
     ]);
     setModal({
       type: 'email-preview',
       subtype: 'posted',
-      shift,
-      emails: buildPostedEmails(shift),
+      shift: allShifts[0],
+      emails: buildPostedEmails(allShifts),
     });
   };
 
-  const claimShift = (shift) => {
+  const claimShift = (shiftOrShifts) => {
+    // Accept either a single shift or an array (multi-select from a group)
+    const toClaim = Array.isArray(shiftOrShifts) ? shiftOrShifts : [shiftOrShifts];
     const claimedAt = new Date().toISOString();
-    const updated = { ...shift, status: 'claimed', claimedBy: currentUserId, claimedAt };
-    setShifts((prev) => prev.map((s) => (s.id === shift.id ? updated : s)));
+    const idSet = new Set(toClaim.map((s) => s.id));
+    const updatedShifts = toClaim.map((s) => ({
+      ...s, status: 'claimed', claimedBy: currentUserId, claimedAt,
+    }));
+    setShifts((prev) =>
+      prev.map((s) => (idSet.has(s.id) ? { ...s, status: 'claimed', claimedBy: currentUserId, claimedAt } : s))
+    );
     setNotifs((prev) => [
-      { id: uid(), type: 'claimed', aboutShiftId: shift.id, byCoachId: currentUserId, at: claimedAt },
+      {
+        id: uid(),
+        type: 'claimed',
+        aboutShiftIds: updatedShifts.map((s) => s.id),
+        groupId: updatedShifts[0].groupId,
+        byCoachId: currentUserId,
+        at: claimedAt,
+      },
       ...prev,
     ]);
     setModal({
       type: 'email-preview',
       subtype: 'claimed',
-      shift: updated,
-      emails: buildClaimedEmails(updated, currentUserId),
+      shift: updatedShifts[0],
+      emails: buildClaimedEmails(updatedShifts, currentUserId),
     });
   };
 
-  const cancelOwnShift = (shift) => {
-    setShifts((prev) => prev.filter((s) => s.id !== shift.id));
+  const cancelOwnShift = (shiftOrShifts) => {
+    const toCancel = Array.isArray(shiftOrShifts) ? shiftOrShifts : [shiftOrShifts];
+    const idSet = new Set(toCancel.map((s) => s.id));
+    setShifts((prev) => prev.filter((s) => !idSet.has(s.id)));
     setNotifs((prev) => [
-      { id: uid(), type: 'cancelled', aboutShiftId: shift.id, byCoachId: currentUserId, at: new Date().toISOString() },
-      ...prev.filter((n) => n.aboutShiftId !== shift.id || n.type !== 'posted'),
+      {
+        id: uid(),
+        type: 'cancelled',
+        aboutShiftIds: [...idSet],
+        groupId: toCancel[0].groupId,
+        byCoachId: currentUserId,
+        at: new Date().toISOString(),
+      },
+      ...prev.filter((n) => !(n.type === 'posted' && n.aboutShiftIds?.some((id) => idSet.has(id)))),
     ]);
     setModal(null);
   };
@@ -414,16 +496,16 @@ function App() {
       )}
       {modal?.type === 'confirm-claim' && (
         <ConfirmClaimModal
-          shift={modal.shift}
+          shifts={modal.shifts}
           onClose={() => setModal(null)}
-          onConfirm={() => claimShift(modal.shift)}
+          onConfirm={(selected) => claimShift(selected)}
         />
       )}
       {modal?.type === 'confirm-cancel' && (
         <ConfirmCancelModal
-          shift={modal.shift}
+          shifts={modal.shifts}
           onClose={() => setModal(null)}
-          onConfirm={() => cancelOwnShift(modal.shift)}
+          onConfirm={(toCancel) => cancelOwnShift(toCancel)}
         />
       )}
       {modal?.type === 'email-preview' && (
@@ -444,57 +526,103 @@ function App() {
 // ----------------------------------------------------------------
 // Email content builders
 // ----------------------------------------------------------------
-function buildPostedEmails(shift) {
-  const poster = coachById(shift.postedBy);
+function buildPostedEmails(shifts) {
+  // `shifts` is an array; renders as a single summary email regardless of count
+  const first = shifts[0];
+  const poster = coachById(first.postedBy);
   const managers = COACHES.filter((c) => c.role.includes('manager'));
   const managerEmails = managers.map((m) => m.email).join(', ');
   const managerFirstNames = managers.map((m) => m.name.split(' ')[0]).join(' & ');
-  const when = `${formatDay(shift.date)} · ${shift.time}`;
+  const reason = first.reason;
+  const n = shifts.length;
+  const isBulk = n > 1;
+
+  // Build a vertically-aligned list of the classes
+  const lines = shifts.map((s) => {
+    const when = `${formatDay(s.date)} · ${s.time}`.padEnd(22);
+    return `   ${when}—  ${s.className}`;
+  }).join('\n');
+
+  const posterSubject = isBulk
+    ? `Coverage requested — ${n} classes`
+    : `Coverage request received — ${first.className}, ${formatDay(first.date)} · ${first.time}`;
+  const managerSubject = isBulk
+    ? `${n} new open shifts — ${poster.name}`
+    : `NEW open shift — ${poster.name}, ${first.className}`;
+
+  const reasonLine = reason ? `\n   REASON  ${reason}\n` : '\n';
+
   return [
     {
       to: poster,
       tag: 'TO POSTER',
       toDisplay: poster.email,
-      subject: `Coverage request received — ${shift.className}, ${when}`,
-      body: `Hi ${poster.name.split(' ')[0]},\n\nYour coverage request is live. Other coaches can now claim it.\n\n   CLASS   ${shift.className}\n   WHEN    ${when}\n   REASON  ${shift.reason || '—'}\n\nYou'll receive a confirmation email the moment a coach picks it up.`,
+      subject: posterSubject,
+      body: isBulk
+        ? `Hi ${poster.name.split(' ')[0]},\n\nYour coverage requests are live. Other coaches can now claim them.\n\n${lines}\n${reasonLine}\nYou'll receive a confirmation email each time a coach picks one up.`
+        : `Hi ${poster.name.split(' ')[0]},\n\nYour coverage request is live. Other coaches can now claim it.\n\n${lines}\n${reasonLine}\nYou'll receive a confirmation email the moment a coach picks it up.`,
     },
     {
       to: { name: 'Management', email: managerEmails },
       tag: 'TO MANAGEMENT',
       toDisplay: managerEmails,
-      subject: `NEW open shift — ${poster.name}, ${shift.className}`,
-      body: `Hi ${managerFirstNames},\n\n${poster.name} has posted a class that needs coverage.\n\n   COACH   ${poster.name}\n   CLASS   ${shift.className}\n   WHEN    ${when}\n   REASON  ${shift.reason || '—'}\n\nStatus: OPEN. You'll be notified when a coach claims it.`,
+      subject: managerSubject,
+      body: isBulk
+        ? `Hi ${managerFirstNames},\n\n${poster.name} has posted ${n} classes that need coverage.\n\n${lines}\n${reasonLine}\nStatus: OPEN. You'll be notified each time a coach claims one.`
+        : `Hi ${managerFirstNames},\n\n${poster.name} has posted a class that needs coverage.\n\n${lines}\n${reasonLine}\nStatus: OPEN. You'll be notified when a coach claims it.`,
     },
   ];
 }
-function buildClaimedEmails(shift, claimerId) {
-  const poster  = coachById(shift.postedBy);
+function buildClaimedEmails(shiftsClaimed, claimerId) {
+  // `shiftsClaimed` is an array of shifts the claimer just covered. All come from the same group.
+  const first = shiftsClaimed[0];
+  const poster  = coachById(first.postedBy);
   const claimer = coachById(claimerId);
   const managers = COACHES.filter((c) => c.role.includes('manager'));
   const managerEmails = managers.map((m) => m.email).join(', ');
   const managerFirstNames = managers.map((m) => m.name.split(' ')[0]).join(' & ');
-  const when = `${formatDay(shift.date)} · ${shift.time}`;
+
+  const n = shiftsClaimed.length;
+  const isBulk = n > 1;
+  const lines = shiftsClaimed
+    .map((s) => `   ${formatDay(s.date)} · ${s.time}  —  ${s.className}`)
+    .join('\n');
+
+  const firstWhen = `${formatDay(first.date)} · ${first.time}`;
+
   return [
     {
       to: claimer,
       tag: 'TO YOU (coverer)',
       toDisplay: claimer.email,
-      subject: `Confirmed: you're covering ${shift.className}, ${when}`,
-      body: `Hi ${claimer.name.split(' ')[0]},\n\nYou've confirmed coverage for the class below. Thanks for stepping up.\n\n   CLASS     ${shift.className}\n   WHEN      ${when}\n   ORIGINAL  ${poster.name}\n\nIf something changes, let the box manager know immediately.`,
+      subject: isBulk
+        ? `Confirmed: you're covering ${n} classes for ${poster.name}`
+        : `Confirmed: you're covering ${first.className}, ${firstWhen}`,
+      body: isBulk
+        ? `Hi ${claimer.name.split(' ')[0]},\n\nYou've confirmed coverage for the following classes originally posted by ${poster.name}. Thanks for stepping up.\n\n${lines}\n\nIf anything changes, let the box manager know immediately.`
+        : `Hi ${claimer.name.split(' ')[0]},\n\nYou've confirmed coverage for the class below. Thanks for stepping up.\n\n   CLASS     ${first.className}\n   WHEN      ${firstWhen}\n   ORIGINAL  ${poster.name}\n\nIf something changes, let the box manager know immediately.`,
     },
     {
       to: poster,
       tag: 'TO POSTER',
       toDisplay: poster.email,
-      subject: `Your shift is covered — ${shift.className}, ${when}`,
-      body: `Hi ${poster.name.split(' ')[0]},\n\nGood news — ${claimer.name} has picked up your class.\n\n   CLASS    ${shift.className}\n   WHEN     ${when}\n   COVER    ${claimer.name}\n\nA thank-you to ${claimer.name.split(' ')[0]} is always a nice touch.`,
+      subject: isBulk
+        ? `${claimer.name} has covered ${n} of your classes`
+        : `Your shift is covered — ${first.className}, ${firstWhen}`,
+      body: isBulk
+        ? `Hi ${poster.name.split(' ')[0]},\n\nGood news — ${claimer.name} has picked up ${n} of the classes from your request:\n\n${lines}\n\nA thank-you to ${claimer.name.split(' ')[0]} is always a nice touch.`
+        : `Hi ${poster.name.split(' ')[0]},\n\nGood news — ${claimer.name} has picked up your class.\n\n   CLASS    ${first.className}\n   WHEN     ${firstWhen}\n   COVER    ${claimer.name}\n\nA thank-you to ${claimer.name.split(' ')[0]} is always a nice touch.`,
     },
     {
       to: { name: 'Management', email: managerEmails },
       tag: 'TO MANAGEMENT',
       toDisplay: managerEmails,
-      subject: `Coverage confirmed — ${claimer.name} covers ${poster.name}`,
-      body: `Hi ${managerFirstNames},\n\nA coverage swap has been confirmed.\n\n   CLASS     ${shift.className}\n   WHEN      ${when}\n   ORIGINAL  ${poster.name}\n   COVER     ${claimer.name}\n\nNo action needed — logged for your records.`,
+      subject: isBulk
+        ? `${claimer.name} covers ${n} classes for ${poster.name}`
+        : `Coverage confirmed — ${claimer.name} covers ${poster.name}`,
+      body: isBulk
+        ? `Hi ${managerFirstNames},\n\n${claimer.name} has picked up ${n} classes from ${poster.name}'s request:\n\n${lines}\n\nNo action needed — logged for your records.`
+        : `Hi ${managerFirstNames},\n\nA coverage swap has been confirmed.\n\n   CLASS     ${first.className}\n   WHEN      ${firstWhen}\n   ORIGINAL  ${poster.name}\n   COVER     ${claimer.name}\n\nNo action needed — logged for your records.`,
     },
   ];
 }
@@ -570,6 +698,10 @@ function Footer({ onReset }) {
 // Coach view
 // ----------------------------------------------------------------
 function CoachView({ currentUser, openShifts, myOpen, myCoverage, setModal }) {
+  const openGroups     = groupShifts(openShifts);
+  const myOpenGroups   = groupShifts(myOpen);
+  const myCoverGroups  = groupShifts(myCoverage);
+
   return (
     <div>
       <div style={styles.heroRow}>
@@ -595,40 +727,49 @@ function CoachView({ currentUser, openShifts, myOpen, myCoverage, setModal }) {
       </div>
 
       <Section title="Open shifts" count={openShifts.length} icon={<Inbox size={14} />}>
-        {openShifts.length === 0 ? (
+        {openGroups.length === 0 ? (
           <EmptyState message="Nothing open right now. The board is clean." />
         ) : (
-          openShifts.map((s) => (
+          openGroups.map((g) => (
             <ShiftCard
-              key={s.id}
-              shift={s}
+              key={g[0].groupId || g[0].id}
+              group={g}
               variant="open-other"
-              onClaim={() => setModal({ type: 'confirm-claim', shift: s })}
+              currentUserId={currentUser.id}
+              onClaim={(shifts) => setModal({ type: 'confirm-claim', shifts })}
             />
           ))
         )}
       </Section>
 
       <Section title="My requests" count={myOpen.length} icon={<Bell size={14} />}>
-        {myOpen.length === 0 ? (
+        {myOpenGroups.length === 0 ? (
           <EmptyState message="You haven't posted any classes needing cover." />
         ) : (
-          myOpen.map((s) => (
+          myOpenGroups.map((g) => (
             <ShiftCard
-              key={s.id}
-              shift={s}
+              key={g[0].groupId || g[0].id}
+              group={g}
               variant="mine"
-              onCancel={s.status === 'open' ? () => setModal({ type: 'confirm-cancel', shift: s }) : null}
+              currentUserId={currentUser.id}
+              onCancel={(shifts) => setModal({ type: 'confirm-cancel', shifts })}
             />
           ))
         )}
       </Section>
 
       <Section title="Classes I'm covering" count={myCoverage.length} icon={<Shield size={14} />}>
-        {myCoverage.length === 0 ? (
+        {myCoverGroups.length === 0 ? (
           <EmptyState message="You haven't picked up any classes yet." />
         ) : (
-          myCoverage.map((s) => <ShiftCard key={s.id} shift={s} variant="covering" />)
+          myCoverGroups.map((g) => (
+            <ShiftCard
+              key={g[0].groupId || g[0].id}
+              group={g}
+              variant="covering"
+              currentUserId={currentUser.id}
+            />
+          ))
         )}
       </Section>
     </div>
@@ -705,25 +846,36 @@ function ManagerView({ shifts, notifs, setModal }) {
         {filtered.length === 0 ? (
           <EmptyState message="Nothing here for this filter." />
         ) : (
-          filtered.map((s) => <ShiftCard key={s.id} shift={s} variant="manager" />)
+          groupShifts(filtered).map((g) => (
+            <ShiftCard key={g[0].groupId || g[0].id} group={g} variant="manager" currentUserId={null} />
+          ))
         )}
       </Section>
 
       <Section title="Activity log" count={notifs.length} icon={<Activity size={14} />}>
         <div style={styles.logBox}>
           {notifs.slice(0, 20).map((n) => {
-            const shift = shifts.find((s) => s.id === n.aboutShiftId);
             const actor = coachById(n.byCoachId);
-            if (!shift) return null;
+            const shiftIds = n.aboutShiftIds || (n.aboutShiftId ? [n.aboutShiftId] : []);
+            const relevantShifts = shiftIds.map((id) => shifts.find((s) => s.id === id)).filter(Boolean);
+            if (relevantShifts.length === 0) return null;
+            const firstShift = relevantShifts[0];
+            const count = relevantShifts.length;
             return (
               <div key={n.id} style={styles.logRow}>
                 <div style={styles.logTime}>{formatRelative(n.at)}</div>
                 <div style={styles.logDot(n.type)} />
                 <div style={styles.logText}>
                   <strong>{actor.name}</strong>{' '}
-                  {n.type === 'posted' && <>posted <em>{shift.className}</em> on {formatDay(shift.date)} · {shift.time}</>}
-                  {n.type === 'claimed' && <>claimed <em>{shift.className}</em> on {formatDay(shift.date)} · {shift.time}</>}
-                  {n.type === 'cancelled' && <>cancelled their request for <em>{shift.className}</em></>}
+                  {n.type === 'posted' && (count > 1
+                    ? <>posted <em>{count} classes</em> from {formatDay(firstShift.date)} · {firstShift.time}</>
+                    : <>posted <em>{firstShift.className}</em> on {formatDay(firstShift.date)} · {firstShift.time}</>)}
+                  {n.type === 'claimed' && (count > 1
+                    ? <>claimed <em>{count} classes</em> starting {formatDay(firstShift.date)} · {firstShift.time}</>
+                    : <>claimed <em>{firstShift.className}</em> on {formatDay(firstShift.date)} · {firstShift.time}</>)}
+                  {n.type === 'cancelled' && (count > 1
+                    ? <>cancelled a request for <em>{count} classes</em></>
+                    : <>cancelled their request for <em>{firstShift.className}</em></>)}
                 </div>
               </div>
             );
@@ -796,41 +948,70 @@ function EmptyState({ message }) {
   );
 }
 
-function ShiftCard({ shift, variant, onClaim, onCancel }) {
-  const poster  = coachById(shift.postedBy);
-  const claimer = shift.claimedBy ? coachById(shift.claimedBy) : null;
-  const urgent  = shift.status === 'open' && hoursUntil(shift.date, shift.time) < 48 && hoursUntil(shift.date, shift.time) > 0;
-  const past    = isPast(shift.date, shift.time);
+function ShiftCard({ group, variant, currentUserId, onClaim, onCancel }) {
+  // `group` is always an array of shifts sharing a groupId (size 1 or more)
+  const shifts = group;
+  const first = shifts[0];
+  const isGroup = shifts.length > 1;
+  const poster = coachById(first.postedBy);
+
+  const openShifts    = shifts.filter((s) => s.status === 'open' && !isPast(s.date, s.time));
+  const claimedShifts = shifts.filter((s) => s.status === 'claimed');
+  const pastShifts    = shifts.filter((s) => isPast(s.date, s.time));
+  const isMine        = first.postedBy === currentUserId;
+  const anyUrgent     = openShifts.some((s) => hoursUntil(s.date, s.time) < 48);
+  const allPast       = pastShifts.length === shifts.length;
+  const allClaimed    = claimedShifts.length === shifts.length;
+  const allOpen       = openShifts.length === shifts.length;
 
   const statusColor =
-    past ? '#87837b' : shift.status === 'open' ? '#c03434' : '#1d6b48';
+    allPast ? '#87837b' :
+    allOpen ? '#c03434' :
+    allClaimed ? '#1d6b48' :
+    '#c29536'; // partial — amber
   const statusLabel =
-    past ? 'PAST' : shift.status === 'open' ? (urgent ? 'URGENT · OPEN' : 'OPEN') : 'COVERED';
+    allPast ? 'PAST' :
+    allOpen ? (anyUrgent ? 'URGENT · OPEN' : 'OPEN') :
+    allClaimed ? 'COVERED' :
+    `${claimedShifts.length}/${shifts.length} COVERED`;
+
+  // Action area depends on variant and state
+  const canClaim  = variant === 'open-other' && openShifts.length > 0;
+  const canCancel = variant === 'mine' && openShifts.length > 0;
 
   return (
     <article
       style={{
         ...styles.card,
         borderLeft: `4px solid ${statusColor}`,
-        opacity: past ? 0.6 : 1,
+        opacity: allPast ? 0.6 : 1,
       }}
     >
       <div style={styles.cardMain}>
         <div style={styles.cardTop}>
-          <div style={styles.cardClass}>{shift.className}</div>
+          <div style={styles.cardClass}>
+            {isGroup
+              ? `${shifts.length} classes · ${groupClassSummary(shifts)}`
+              : first.className}
+          </div>
           <div style={{ ...styles.statusTag, color: statusColor, borderColor: statusColor }}>
             {statusLabel}
           </div>
         </div>
 
-        <div style={styles.cardMeta}>
-          <span style={styles.metaItem}>
-            <Calendar size={13} /> {formatDay(shift.date)}
-          </span>
-          <span style={styles.metaItem}>
-            <Clock size={13} /> {shift.time}
-          </span>
-        </div>
+        {/* Single-shift: show date/time inline. Group: render per-shift list below */}
+        {!isGroup ? (
+          <div style={styles.cardMeta}>
+            <span style={styles.metaItem}><Calendar size={13} /> {formatDay(first.date)}</span>
+            <span style={styles.metaItem}><Clock size={13} /> {first.time}</span>
+          </div>
+        ) : (
+          <div style={styles.cardMeta}>
+            <span style={styles.metaItem}>
+              <Calendar size={13} /> {groupDateRange(shifts)}
+            </span>
+          </div>
+        )}
 
         <div style={styles.cardPeople}>
           <div style={styles.personLine}>
@@ -840,43 +1021,83 @@ function ShiftCard({ shift, variant, onClaim, onCancel }) {
               <span style={styles.personName}>{poster.name}</span>
             </div>
           </div>
-          {claimer && (
+          {!isGroup && first.claimedBy && (
             <>
               <ArrowRight size={14} style={{ color: '#87837b', flexShrink: 0 }} />
               <div style={styles.personLine}>
-                <Avatar coach={claimer} size={22} />
+                <Avatar coach={coachById(first.claimedBy)} size={22} />
                 <div style={styles.personText}>
                   <span style={styles.personLabel}>Covered by</span>
-                  <span style={styles.personName}>{claimer.name}</span>
+                  <span style={styles.personName}>{coachById(first.claimedBy).name}</span>
                 </div>
               </div>
             </>
           )}
         </div>
 
-        {shift.reason && (
+        {first.reason && (
           <div style={styles.cardReason}>
-            <span style={styles.reasonLabel}>REASON</span> {shift.reason}
+            <span style={styles.reasonLabel}>REASON</span> {first.reason}
           </div>
+        )}
+
+        {isGroup && (
+          <ul style={styles.subShiftList}>
+            {shifts.map((s) => {
+              const claimer = s.claimedBy ? coachById(s.claimedBy) : null;
+              const dotColor = isPast(s.date, s.time) ? '#87837b' : s.status === 'open' ? '#c03434' : '#1d6b48';
+              return (
+                <li key={s.id} style={styles.subShiftRow}>
+                  <span style={{ ...styles.subShiftDot, background: dotColor }} />
+                  <span style={styles.subShiftWhen}>{formatDay(s.date)} · {s.time}</span>
+                  <span style={styles.subShiftClass}>{s.className}</span>
+                  <span style={styles.subShiftStatus}>
+                    {isPast(s.date, s.time)
+                      ? 'past'
+                      : s.status === 'open'
+                        ? 'open'
+                        : <>covered by <strong>{claimer?.name}</strong></>}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </div>
 
-      {variant === 'open-other' && onClaim && (
+      {(canClaim || canCancel) && (
         <div style={styles.cardAction}>
-          <button onClick={onClaim} style={styles.claimBtn}>
-            <Check size={14} strokeWidth={3} /> I'LL COVER IT
-          </button>
-        </div>
-      )}
-      {variant === 'mine' && onCancel && (
-        <div style={styles.cardAction}>
-          <button onClick={onCancel} style={styles.cancelBtn}>
-            <X size={14} /> Cancel request
-          </button>
+          {canClaim && (
+            <button onClick={() => onClaim(shifts)} style={styles.claimBtn}>
+              <Check size={14} strokeWidth={3} />{' '}
+              {isGroup
+                ? `COVER 1 OR MORE (${openShifts.length} OPEN)`
+                : "I'LL COVER IT"}
+            </button>
+          )}
+          {canCancel && (
+            <button onClick={() => onCancel(openShifts)} style={styles.cancelBtn}>
+              <X size={14} />{' '}
+              {openShifts.length > 1 ? `Cancel ${openShifts.length} open` : 'Cancel request'}
+            </button>
+          )}
         </div>
       )}
     </article>
   );
+}
+
+// Helpers for group summaries
+function groupClassSummary(shifts) {
+  const unique = [...new Set(shifts.map((s) => s.className))];
+  if (unique.length === 1) return unique[0];
+  if (unique.length === 2) return unique.join(' + ');
+  return `${unique.length} class types`;
+}
+function groupDateRange(shifts) {
+  const dates = [...new Set(shifts.map((s) => s.date))].sort();
+  if (dates.length === 1) return formatDay(dates[0]);
+  return `${formatDay(dates[0])} → ${formatDay(dates[dates.length - 1])}`;
 }
 
 // ----------------------------------------------------------------
@@ -896,57 +1117,134 @@ function ModalShell({ children, onClose, maxWidth = 520 }) {
 }
 
 function PostShiftModal({ onClose, onSubmit }) {
-  const [date, setDate]       = useState(isoDay(1));
-  const [time, setTime]       = useState('18:00');
-  const [className, setClass] = useState(CLASS_TYPES[0]);
-  const [reason, setReason]   = useState('');
+  const [entries, setEntries] = useState([
+    { id: uid(), date: isoDay(1), time: '18:00', className: CLASS_TYPES[0], shifts: 1 },
+  ]);
+  const [reason, setReason] = useState('');
 
-  const submit = () => {
-    if (!date || !time || !className) return;
-    onSubmit({ date, time, className, reason });
+  const updateEntry = (id, patch) =>
+    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, ...patch } : e)));
+
+  const addEntry = () => {
+    // New entry defaults to the day after the last row, same time & class
+    const last = entries[entries.length - 1];
+    const nextDate = last ? shiftDateISO(last.date, 1) : isoDay(1);
+    setEntries((prev) => [
+      ...prev,
+      { id: uid(), date: nextDate, time: last?.time ?? '18:00', className: last?.className ?? CLASS_TYPES[0], shifts: 1 },
+    ]);
   };
 
+  const removeEntry = (id) => {
+    if (entries.length === 1) return;
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  const submit = () => {
+    const clean = entries.filter((e) => e.date && e.time && e.className);
+    if (clean.length === 0) return;
+    onSubmit(clean.map(({ id, ...rest }) => ({ ...rest, reason })));
+  };
+
+  // Total shifts across all rows (accounting for the back-to-back multiplier on each row)
+  const totalShifts = entries.reduce(
+    (acc, e) => acc + Math.max(1, Math.min(6, Number(e.shifts) || 1)),
+    0
+  );
+
   return (
-    <ModalShell onClose={onClose}>
+    <ModalShell onClose={onClose} maxWidth={640}>
       <div style={styles.modalHeader}>
-        <h3 style={styles.modalTitle}>POST A SHIFT</h3>
+        <h3 style={styles.modalTitle}>REQUEST COVERAGE</h3>
         <button onClick={onClose} style={styles.closeBtn}><X size={18} /></button>
       </div>
       <p style={styles.modalIntro}>
-        Tell the team which class you can't make. They'll be able to claim it.
+        Add the classes you need covered. Teaching back-to-back hours?
+        Set <strong>Shifts</strong> to <strong>2–6</strong> on a row to mean "N classes in a row starting at this time".
+        Everything you post here goes out as <strong>one request</strong>.
       </p>
 
-      <div style={styles.formGrid}>
-        <Field label="Date">
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={styles.input}
-            min={isoDay(0)}
-          />
-        </Field>
-        <Field label="Time">
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            style={styles.input}
-          />
-        </Field>
+      <div style={styles.entriesList}>
+        {entries.map((entry, idx) => {
+          const count = Math.max(1, Math.min(6, Number(entry.shifts) || 1));
+          const preview = count > 1
+            ? Array.from({ length: count }, (_, i) => addHoursToTime(entry.time, i)).join(' · ')
+            : null;
+          return (
+            <div key={entry.id} style={styles.entryRow}>
+              <div style={styles.entryIndex}>{String(idx + 1).padStart(2, '0')}</div>
+              <div style={{ flex: 1 }}>
+                <div style={styles.entryFields}>
+                  <Field label="Date">
+                    <input
+                      type="date"
+                      value={entry.date}
+                      onChange={(e) => updateEntry(entry.id, { date: e.target.value })}
+                      style={styles.input}
+                      min={isoDay(0)}
+                    />
+                  </Field>
+                  <Field label="Time">
+                    <input
+                      type="time"
+                      value={entry.time}
+                      onChange={(e) => updateEntry(entry.id, { time: e.target.value })}
+                      style={styles.input}
+                    />
+                  </Field>
+                  <Field label="Shifts">
+                    <select
+                      value={entry.shifts}
+                      onChange={(e) => updateEntry(entry.id, { shifts: Number(e.target.value) })}
+                      style={styles.input}
+                    >
+                      <option value={1}>1</option>
+                      <option value={2}>2</option>
+                      <option value={3}>3</option>
+                      <option value={4}>4</option>
+                      <option value={5}>5</option>
+                      <option value={6}>6</option>
+                    </select>
+                  </Field>
+                  <Field label="Class">
+                    <select
+                      value={entry.className}
+                      onChange={(e) => updateEntry(entry.id, { className: e.target.value })}
+                      style={styles.input}
+                    >
+                      {CLASS_TYPES.map((c) => <option key={c}>{c}</option>)}
+                    </select>
+                  </Field>
+                </div>
+                {preview && (
+                  <div style={styles.entryPreview}>
+                    → {count} back-to-back classes: {preview}
+                  </div>
+                )}
+              </div>
+              {entries.length > 1 && (
+                <button
+                  onClick={() => removeEntry(entry.id)}
+                  style={styles.removeEntryBtn}
+                  title="Remove this row"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      <Field label="Class">
-        <select value={className} onChange={(e) => setClass(e.target.value)} style={styles.input}>
-          {CLASS_TYPES.map((c) => <option key={c}>{c}</option>)}
-        </select>
-      </Field>
+      <button onClick={addEntry} style={styles.addEntryBtn}>
+        <Plus size={14} strokeWidth={3} /> Add another class
+      </button>
 
-      <Field label="Reason (optional)">
+      <Field label={totalShifts > 1 ? 'Reason (applies to all classes in this request)' : 'Reason (optional)'}>
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Medical appointment, family commitment, etc."
+          placeholder={totalShifts > 1 ? 'e.g. Away on holiday from 27 Apr – 3 May' : 'Medical appointment, family commitment, etc.'}
           style={{ ...styles.input, minHeight: 70, resize: 'vertical', fontFamily: 'Archivo, sans-serif' }}
         />
       </Field>
@@ -954,54 +1252,163 @@ function PostShiftModal({ onClose, onSubmit }) {
       <div style={styles.modalActions}>
         <button onClick={onClose} style={styles.secondaryBtn}>Cancel</button>
         <button onClick={submit} style={styles.primaryBtn}>
-          <Plus size={14} strokeWidth={3} /> Post request
+          <Plus size={14} strokeWidth={3} />{' '}
+          {totalShifts > 1 ? `Post request (${totalShifts} classes)` : 'Post request'}
         </button>
       </div>
     </ModalShell>
   );
 }
 
-function ConfirmClaimModal({ shift, onClose, onConfirm }) {
-  const poster = coachById(shift.postedBy);
+function ConfirmClaimModal({ shifts, onClose, onConfirm }) {
+  // `shifts` is the array of OPEN shifts from the group the user clicked "Cover" on
+  const isGroup = shifts.length > 1;
+  const poster = coachById(shifts[0].postedBy);
+
+  // Track which shift IDs are selected. Default: all of them.
+  const [selected, setSelected] = useState(() => new Set(shifts.map((s) => s.id)));
+
+  const toggle = (id) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const selectAll = () => setSelected(new Set(shifts.map((s) => s.id)));
+  const selectNone = () => setSelected(new Set());
+
+  const selectedShifts = shifts.filter((s) => selected.has(s.id));
+  const canConfirm = selectedShifts.length > 0;
+
+  if (!isGroup) {
+    // Simple single-shift confirmation (original flow)
+    const shift = shifts[0];
+    return (
+      <ModalShell onClose={onClose} maxWidth={460}>
+        <div style={styles.modalHeader}>
+          <h3 style={styles.modalTitle}>CONFIRM COVERAGE</h3>
+          <button onClick={onClose} style={styles.closeBtn}><X size={18} /></button>
+        </div>
+        <p style={styles.modalIntro}>
+          You're about to take over this class. Three emails go out the moment you confirm.
+        </p>
+        <div style={styles.confirmBox}>
+          <div style={styles.confirmRow}><span>CLASS</span><strong>{shift.className}</strong></div>
+          <div style={styles.confirmRow}><span>WHEN</span><strong>{formatDay(shift.date)} · {shift.time}</strong></div>
+          <div style={styles.confirmRow}><span>ORIGINAL</span><strong>{poster.name}</strong></div>
+        </div>
+        <div style={styles.modalActions}>
+          <button onClick={onClose} style={styles.secondaryBtn}>Back</button>
+          <button onClick={() => onConfirm(shifts)} style={styles.primaryBtn}>
+            <Check size={14} strokeWidth={3} /> Yes, I'll cover it
+          </button>
+        </div>
+      </ModalShell>
+    );
+  }
+
+  // Multi-select variant
   return (
-    <ModalShell onClose={onClose} maxWidth={460}>
+    <ModalShell onClose={onClose} maxWidth={540}>
       <div style={styles.modalHeader}>
-        <h3 style={styles.modalTitle}>CONFIRM COVERAGE</h3>
+        <h3 style={styles.modalTitle}>PICK CLASSES TO COVER</h3>
         <button onClick={onClose} style={styles.closeBtn}><X size={18} /></button>
       </div>
       <p style={styles.modalIntro}>
-        You're about to take over this class. Three emails go out the moment you confirm.
+        <strong>{poster.name}</strong> posted {shifts.length} open classes as one request.
+        Tick the ones you can cover — all, some, or just one.
       </p>
-      <div style={styles.confirmBox}>
-        <div style={styles.confirmRow}><span>CLASS</span><strong>{shift.className}</strong></div>
-        <div style={styles.confirmRow}><span>WHEN</span><strong>{formatDay(shift.date)} · {shift.time}</strong></div>
-        <div style={styles.confirmRow}><span>ORIGINAL</span><strong>{poster.name}</strong></div>
+
+      <div style={styles.claimSelectToolbar}>
+        <span style={styles.claimSelectCount}>
+          {selectedShifts.length} of {shifts.length} selected
+        </span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button onClick={selectAll}  style={styles.smallBtn}>All</button>
+          <button onClick={selectNone} style={styles.smallBtn}>None</button>
+        </div>
       </div>
+
+      <div style={styles.claimSelectList}>
+        {shifts.map((s) => {
+          const isOn = selected.has(s.id);
+          return (
+            <button
+              key={s.id}
+              onClick={() => toggle(s.id)}
+              style={{
+                ...styles.claimSelectRow,
+                ...(isOn ? styles.claimSelectRowActive : {}),
+              }}
+            >
+              <span style={styles.claimSelectBox}>
+                {isOn && <Check size={12} strokeWidth={4} />}
+              </span>
+              <span style={styles.claimSelectWhen}>
+                {formatDay(s.date)} · {s.time}
+              </span>
+              <span style={styles.claimSelectClass}>{s.className}</span>
+            </button>
+          );
+        })}
+      </div>
+
       <div style={styles.modalActions}>
         <button onClick={onClose} style={styles.secondaryBtn}>Back</button>
-        <button onClick={onConfirm} style={styles.primaryBtn}>
-          <Check size={14} strokeWidth={3} /> Yes, I'll cover it
+        <button
+          onClick={() => onConfirm(selectedShifts)}
+          style={{ ...styles.primaryBtn, opacity: canConfirm ? 1 : 0.5 }}
+          disabled={!canConfirm}
+        >
+          <Check size={14} strokeWidth={3} />{' '}
+          {selectedShifts.length === shifts.length
+            ? `Cover all ${shifts.length}`
+            : `Cover ${selectedShifts.length} of ${shifts.length}`}
         </button>
       </div>
     </ModalShell>
   );
 }
 
-function ConfirmCancelModal({ shift, onClose, onConfirm }) {
+function ConfirmCancelModal({ shifts, onClose, onConfirm }) {
+  const isGroup = shifts.length > 1;
+  const first = shifts[0];
   return (
-    <ModalShell onClose={onClose} maxWidth={440}>
+    <ModalShell onClose={onClose} maxWidth={460}>
       <div style={styles.modalHeader}>
         <h3 style={styles.modalTitle}>CANCEL REQUEST</h3>
         <button onClick={onClose} style={styles.closeBtn}><X size={18} /></button>
       </div>
       <p style={styles.modalIntro}>
-        Remove your coverage request for <strong>{shift.className}</strong> on{' '}
-        <strong>{formatDay(shift.date)} · {shift.time}</strong>? This can't be undone.
+        {isGroup ? (
+          <>
+            Remove your coverage request for these <strong>{shifts.length}</strong> open classes?
+            Classes that have already been claimed by someone else won't be affected.
+          </>
+        ) : (
+          <>
+            Remove your coverage request for <strong>{first.className}</strong> on{' '}
+            <strong>{formatDay(first.date)} · {first.time}</strong>? This can't be undone.
+          </>
+        )}
       </p>
+      {isGroup && (
+        <div style={styles.confirmListBox}>
+          {shifts.map((s) => (
+            <div key={s.id} style={styles.confirmListRow}>
+              <span style={styles.confirmListWhen}>{formatDay(s.date)} · {s.time}</span>
+              <span style={styles.confirmListClass}>{s.className}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <div style={styles.modalActions}>
         <button onClick={onClose} style={styles.secondaryBtn}>Keep it</button>
-        <button onClick={onConfirm} style={styles.dangerBtn}>
-          <X size={14} /> Yes, cancel
+        <button onClick={() => onConfirm(shifts)} style={styles.dangerBtn}>
+          <X size={14} />{' '}
+          {isGroup ? `Yes, cancel ${shifts.length}` : 'Yes, cancel'}
         </button>
       </div>
     </ModalShell>
@@ -1496,6 +1903,133 @@ const styles = {
     borderRadius: 4, fontSize: 14, background: '#faf7ed',
     color: '#141414', width: '100%',
   },
+  entriesList: {
+    display: 'flex', flexDirection: 'column', gap: 8,
+    marginBottom: 10,
+  },
+  entryRow: {
+    display: 'flex', alignItems: 'flex-start', gap: 8,
+    padding: 12,
+    background: '#ece7da', border: '1px solid #d9d2bf',
+    borderRadius: 4,
+  },
+  entryIndex: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 10, color: '#87837b', letterSpacing: '0.1em',
+    paddingTop: 26, flexShrink: 0, width: 20,
+  },
+  entryFields: {
+    flex: 1,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(105px, 1fr))',
+    gap: 8,
+  },
+  removeEntryBtn: {
+    width: 28, height: 28, borderRadius: 4,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: '#87837b', background: 'transparent',
+    border: '1px solid #d9d2bf',
+    marginTop: 22, flexShrink: 0,
+  },
+  addEntryBtn: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    padding: '9px 14px',
+    background: 'transparent', color: '#141414',
+    border: '1px dashed #87837b', borderRadius: 4,
+    fontFamily: 'Archivo, sans-serif', fontWeight: 600, fontSize: 12,
+    marginBottom: 14, width: '100%', justifyContent: 'center',
+  },
+  entryPreview: {
+    marginTop: 8, fontSize: 11,
+    fontFamily: 'JetBrains Mono, monospace',
+    color: '#3a3a3a', letterSpacing: '0.02em',
+  },
+  subShiftList: {
+    listStyle: 'none', padding: 0, margin: '10px 0 0',
+    borderTop: '1px dashed #d9d2bf',
+    paddingTop: 8,
+  },
+  subShiftRow: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '5px 0', fontSize: 12,
+    borderBottom: '1px dashed #e9e2ce',
+    flexWrap: 'wrap',
+  },
+  subShiftDot: {
+    width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
+  },
+  subShiftWhen: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 11, color: '#141414', minWidth: 120,
+  },
+  subShiftClass: { flex: 1, color: '#3a3a3a', fontSize: 12, minWidth: 120 },
+  subShiftStatus: {
+    fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+    color: '#87837b', letterSpacing: '0.08em',
+    textTransform: 'lowercase',
+  },
+
+  claimSelectToolbar: {
+    display: 'flex', justifyContent: 'space-between',
+    alignItems: 'center', marginBottom: 10,
+  },
+  claimSelectCount: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 10, color: '#87837b', letterSpacing: '0.15em', textTransform: 'uppercase',
+  },
+  smallBtn: {
+    padding: '6px 10px',
+    background: '#ece7da', color: '#141414',
+    fontFamily: 'Archivo, sans-serif', fontWeight: 600, fontSize: 11,
+    borderRadius: 3, border: '1px solid #d9d2bf',
+    letterSpacing: '0.05em',
+  },
+  claimSelectList: {
+    display: 'flex', flexDirection: 'column', gap: 6,
+    marginBottom: 16,
+  },
+  claimSelectRow: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '10px 12px',
+    background: '#ece7da', border: '1px solid #d9d2bf',
+    borderRadius: 4, textAlign: 'left', width: '100%',
+    cursor: 'pointer',
+    transition: 'background 0.1s, border-color 0.1s',
+  },
+  claimSelectRowActive: {
+    background: '#dfe8df', borderColor: '#1d6b48',
+  },
+  claimSelectBox: {
+    width: 18, height: 18, borderRadius: 3,
+    border: '1.5px solid #141414',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: '#faf7ed',
+    flexShrink: 0, color: '#1d6b48',
+  },
+  claimSelectWhen: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 11, color: '#141414', minWidth: 130,
+  },
+  claimSelectClass: {
+    flex: 1, fontFamily: 'Archivo, sans-serif', fontSize: 13, color: '#141414',
+  },
+
+  confirmListBox: {
+    background: '#ece7da', border: '1px solid #d9d2bf',
+    borderRadius: 4, padding: 10, marginBottom: 14,
+    display: 'flex', flexDirection: 'column', gap: 4,
+    maxHeight: 180, overflowY: 'auto',
+  },
+  confirmListRow: {
+    display: 'flex', gap: 10, alignItems: 'center',
+    padding: '5px 2px', fontSize: 12,
+    borderBottom: '1px dashed #d9d2bf',
+  },
+  confirmListWhen: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 11, color: '#141414', minWidth: 130,
+  },
+  confirmListClass: { flex: 1, fontSize: 12, color: '#3a3a3a' },
 
   confirmBox: {
     background: '#ece7da', border: '1px solid #d9d2bf',

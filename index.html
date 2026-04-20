@@ -259,6 +259,13 @@ const addHoursToTime = (timeStr, hours) => {
   const newH = (h + hours) % 24;
   return `${String(newH).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 };
+const dateToISO = (d) => {
+  // Serialize a JS Date to YYYY-MM-DD using local components (avoids UTC roundtrip bugs)
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+};
 
 // ----------------------------------------------------------------
 // Main App
@@ -282,7 +289,10 @@ function App() {
     (async () => {
       try {
         const s = await window.storage.get('cover_shifts');
-        setShifts(s ? JSON.parse(s.value) : SEED_SHIFTS);
+        const loaded = s ? JSON.parse(s.value) : SEED_SHIFTS;
+        // Migration: any shift without a groupId gets treated as its own single-shift group
+        const migrated = loaded.map((sh) => ({ ...sh, groupId: sh.groupId || sh.id }));
+        setShifts(migrated);
       } catch { setShifts(SEED_SHIFTS); }
       try {
         const n = await window.storage.get('cover_notifs');
@@ -464,6 +474,7 @@ function App() {
             openShifts={openShiftsNotMine}
             myOpen={myOpen}
             myCoverage={myCoverage}
+            allShifts={shifts}
             setModal={setModal}
           />
         )}
@@ -697,10 +708,11 @@ function Footer({ onReset }) {
 // ----------------------------------------------------------------
 // Coach view
 // ----------------------------------------------------------------
-function CoachView({ currentUser, openShifts, myOpen, myCoverage, setModal }) {
+function CoachView({ currentUser, openShifts, myOpen, myCoverage, allShifts, setModal }) {
   const openGroups     = groupShifts(openShifts);
   const myOpenGroups   = groupShifts(myOpen);
   const myCoverGroups  = groupShifts(myCoverage);
+  const [mode, setMode] = useState('list'); // 'list' | 'calendar'
 
   return (
     <div>
@@ -726,52 +738,303 @@ function CoachView({ currentUser, openShifts, myOpen, myCoverage, setModal }) {
         <Stat label="I'm covering" value={myCoverage.length} accent="green" />
       </div>
 
-      <Section title="Open shifts" count={openShifts.length} icon={<Inbox size={14} />}>
-        {openGroups.length === 0 ? (
-          <EmptyState message="Nothing open right now. The board is clean." />
-        ) : (
-          openGroups.map((g) => (
-            <ShiftCard
-              key={g[0].groupId || g[0].id}
-              group={g}
-              variant="open-other"
-              currentUserId={currentUser.id}
-              onClaim={(shifts) => setModal({ type: 'confirm-claim', shifts })}
-            />
-          ))
-        )}
-      </Section>
+      <ViewModeToggle mode={mode} onChange={setMode} />
 
-      <Section title="My requests" count={myOpen.length} icon={<Bell size={14} />}>
-        {myOpenGroups.length === 0 ? (
-          <EmptyState message="You haven't posted any classes needing cover." />
-        ) : (
-          myOpenGroups.map((g) => (
-            <ShiftCard
-              key={g[0].groupId || g[0].id}
-              group={g}
-              variant="mine"
-              currentUserId={currentUser.id}
-              onCancel={(shifts) => setModal({ type: 'confirm-cancel', shifts })}
-            />
-          ))
-        )}
-      </Section>
+      {mode === 'calendar' ? (
+        <CalendarView
+          shifts={allShifts}
+          currentUserId={currentUser.id}
+          variant="coach"
+          onClaim={(shifts) => setModal({ type: 'confirm-claim', shifts })}
+          onCancel={(shifts) => setModal({ type: 'confirm-cancel', shifts })}
+        />
+      ) : (
+        <>
+          <Section title="Open shifts" count={openShifts.length} icon={<Inbox size={14} />}>
+            {openGroups.length === 0 ? (
+              <EmptyState message="Nothing open right now. The board is clean." />
+            ) : (
+              openGroups.map((g) => (
+                <ShiftCard
+                  key={g[0].groupId || g[0].id}
+                  group={g}
+                  variant="open-other"
+                  currentUserId={currentUser.id}
+                  onClaim={(shifts) => setModal({ type: 'confirm-claim', shifts })}
+                />
+              ))
+            )}
+          </Section>
 
-      <Section title="Classes I'm covering" count={myCoverage.length} icon={<Shield size={14} />}>
-        {myCoverGroups.length === 0 ? (
-          <EmptyState message="You haven't picked up any classes yet." />
-        ) : (
-          myCoverGroups.map((g) => (
-            <ShiftCard
-              key={g[0].groupId || g[0].id}
-              group={g}
-              variant="covering"
-              currentUserId={currentUser.id}
-            />
-          ))
+          <Section title="My requests" count={myOpen.length} icon={<Bell size={14} />}>
+            {myOpenGroups.length === 0 ? (
+              <EmptyState message="You haven't posted any classes needing cover." />
+            ) : (
+              myOpenGroups.map((g) => (
+                <ShiftCard
+                  key={g[0].groupId || g[0].id}
+                  group={g}
+                  variant="mine"
+                  currentUserId={currentUser.id}
+                  onCancel={(shifts) => setModal({ type: 'confirm-cancel', shifts })}
+                />
+              ))
+            )}
+          </Section>
+
+          <Section title="Classes I'm covering" count={myCoverage.length} icon={<Shield size={14} />}>
+            {myCoverGroups.length === 0 ? (
+              <EmptyState message="You haven't picked up any classes yet." />
+            ) : (
+              myCoverGroups.map((g) => (
+                <ShiftCard
+                  key={g[0].groupId || g[0].id}
+                  group={g}
+                  variant="covering"
+                  currentUserId={currentUser.id}
+                />
+              ))
+            )}
+          </Section>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ViewModeToggle({ mode, onChange }) {
+  return (
+    <div style={styles.viewModeToggle}>
+      <button
+        onClick={() => onChange('list')}
+        style={{
+          ...styles.viewModeBtn,
+          ...(mode === 'list' ? styles.viewModeBtnActive : {}),
+        }}
+      >
+        <Inbox size={13} /> List
+      </button>
+      <button
+        onClick={() => onChange('calendar')}
+        style={{
+          ...styles.viewModeBtn,
+          ...(mode === 'calendar' ? styles.viewModeBtnActive : {}),
+        }}
+      >
+        <Calendar size={13} /> Calendar
+      </button>
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------
+// Calendar view (shared between coach & manager dashboards)
+// ----------------------------------------------------------------
+function CalendarView({ shifts, currentUserId, variant, onClaim, onCancel }) {
+  // variant: 'coach' | 'manager' — manager view hides Cover/Cancel actions
+  const today = new Date();
+  const todayISO = dateToISO(today);
+
+  const [year, setYear]   = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth());
+  const [selectedDate, setSelectedDate] = useState(todayISO);
+
+  const prev = () => {
+    if (month === 0) { setYear(year - 1); setMonth(11); } else setMonth(month - 1);
+  };
+  const next = () => {
+    if (month === 11) { setYear(year + 1); setMonth(0); } else setMonth(month + 1);
+  };
+  const jumpToToday = () => {
+    setYear(today.getFullYear());
+    setMonth(today.getMonth());
+    setSelectedDate(todayISO);
+  };
+
+  // Group all shifts by date for fast cell lookup
+  const shiftsByDate = useMemo(() => {
+    const m = new Map();
+    for (const s of shifts) {
+      if (!m.has(s.date)) m.set(s.date, []);
+      m.get(s.date).push(s);
+    }
+    return m;
+  }, [shifts]);
+
+  // Build 6-week month grid (42 cells), starting from Monday
+  const firstDay = new Date(year, month, 1);
+  const firstWeekday = firstDay.getDay(); // 0=Sun..6=Sat
+  const offset = firstWeekday === 0 ? 6 : firstWeekday - 1;
+
+  const cells = [];
+  for (let i = -offset; i < 42 - offset; i++) {
+    cells.push(new Date(year, month, 1 + i));
+  }
+
+  const monthLabel = firstDay.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const weekdayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  // Compute selected day's shifts (sorted by time)
+  const selectedShifts = (shiftsByDate.get(selectedDate) || [])
+    .slice()
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  return (
+    <div>
+      {/* Calendar header with month nav */}
+      <div style={styles.calHeader}>
+        <button onClick={prev} style={styles.calNavBtn} title="Previous month">‹</button>
+        <div style={styles.calTitle}>{monthLabel}</div>
+        <button onClick={next} style={styles.calNavBtn} title="Next month">›</button>
+        <button onClick={jumpToToday} style={styles.calTodayBtn}>Today</button>
+      </div>
+
+      {/* Weekday labels */}
+      <div style={styles.calWeekdayRow}>
+        {weekdayLabels.map((d, i) => (
+          <div key={i} style={styles.calWeekdayLabel}>{d}</div>
+        ))}
+      </div>
+
+      {/* Day grid */}
+      <div style={styles.calGrid}>
+        {cells.map((d) => {
+          const iso = dateToISO(d);
+          const inMonth   = d.getMonth() === month;
+          const isToday   = iso === todayISO;
+          const isSelected = iso === selectedDate;
+          const dayShifts = shiftsByDate.get(iso) || [];
+          const open      = dayShifts.filter((s) => s.status === 'open').length;
+          const covered   = dayShifts.filter((s) => s.status === 'claimed').length;
+          const cellStyle = {
+            ...styles.calCell,
+            ...(!inMonth ? styles.calCellOutMonth : {}),
+            ...(isSelected ? styles.calCellSelected : {}),
+          };
+          return (
+            <button
+              key={iso}
+              onClick={() => setSelectedDate(iso)}
+              style={cellStyle}
+            >
+              <div style={{
+                ...styles.calDayNum,
+                ...(isSelected ? { color: '#ece7da' } : {}),
+                ...(isToday && !isSelected ? styles.calDayNumToday : {}),
+              }}>
+                {d.getDate()}
+              </div>
+              <div style={styles.calDayIndicators}>
+                {open > 0 && (
+                  <span style={{
+                    ...styles.calBadge,
+                    background: '#c03434', color: '#fff',
+                  }}>{open}</span>
+                )}
+                {covered > 0 && (
+                  <span style={{
+                    ...styles.calBadge,
+                    background: '#1d6b48', color: '#fff',
+                  }}>{covered}</span>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selected day's details */}
+      <DayDetails
+        date={selectedDate}
+        shifts={selectedShifts}
+        allShifts={shifts}
+        currentUserId={currentUserId}
+        variant={variant}
+        onClaim={onClaim}
+        onCancel={onCancel}
+      />
+    </div>
+  );
+}
+
+function DayDetails({ date, shifts, allShifts, currentUserId, variant, onClaim, onCancel }) {
+  const formatted = new Date(date + 'T00:00:00').toLocaleDateString('en-GB', {
+    weekday: 'long', day: 'numeric', month: 'long',
+  });
+  const isEmpty = shifts.length === 0;
+
+  return (
+    <div style={styles.dayDetails}>
+      <div style={styles.dayDetailsHeader}>
+        <span style={styles.dayDetailsDate}>{formatted}</span>
+        {!isEmpty && (
+          <span style={styles.dayDetailsCount}>
+            {shifts.length} {shifts.length === 1 ? 'class' : 'classes'}
+          </span>
         )}
-      </Section>
+      </div>
+      {isEmpty ? (
+        <div style={styles.dayDetailsEmpty}>
+          <div style={styles.emptyDash} />
+          <span>No classes scheduled for this day.</span>
+        </div>
+      ) : (
+        <ul style={styles.dayShiftList}>
+          {shifts.map((s) => {
+            const poster  = coachById(s.postedBy);
+            const claimer = s.claimedBy ? coachById(s.claimedBy) : null;
+            const isMine  = s.postedBy === currentUserId;
+            const past    = isPast(s.date, s.time);
+            const isOpen  = s.status === 'open' && !past;
+            const statusColor = past ? '#87837b' : s.status === 'open' ? '#c03434' : '#1d6b48';
+
+            // Actions only in coach variant; claim passes the full group so the multi-select
+            // modal opens with all open siblings selectable. Use (groupId || id) as the group
+            // key so undefined can never false-match across unrelated shifts.
+            const groupKey  = s.groupId || s.id;
+            const groupOpen = allShifts.filter(
+              (x) =>
+                (x.groupId || x.id) === groupKey &&
+                x.status === 'open' &&
+                !isPast(x.date, x.time)
+            );
+            const canClaim  = variant === 'coach' && isOpen && !isMine;
+            const canCancel = variant === 'coach' && isOpen && isMine;
+
+            return (
+              <li key={s.id} style={styles.dayShiftRow}>
+                <span style={{ ...styles.dayShiftDot, background: statusColor }} />
+                <span style={styles.dayShiftTime}>{s.time}</span>
+                <span style={styles.dayShiftClass}>{s.className}</span>
+                <span style={styles.dayShiftPeople}>
+                  <Avatar coach={poster} size={18} />
+                  <span style={styles.dayShiftName}>{poster.name}</span>
+                  {claimer && (
+                    <>
+                      <ArrowRight size={11} style={{ color: '#87837b', flexShrink: 0 }} />
+                      <Avatar coach={claimer} size={18} />
+                      <span style={styles.dayShiftName}>{claimer.name}</span>
+                    </>
+                  )}
+                </span>
+                {canClaim && (
+                  <button onClick={() => onClaim(groupOpen)} style={styles.dayShiftBtnClaim}>
+                    <Check size={12} strokeWidth={3} /> Cover
+                  </button>
+                )}
+                {canCancel && (
+                  <button onClick={() => onCancel(groupOpen)} style={styles.dayShiftBtnCancel}>
+                    <X size={12} /> Cancel
+                  </button>
+                )}
+                {past && !canClaim && !canCancel && (
+                  <span style={styles.dayShiftStatusText}>past</span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
@@ -781,6 +1044,7 @@ function CoachView({ currentUser, openShifts, myOpen, myCoverage, setModal }) {
 // ----------------------------------------------------------------
 function ManagerView({ shifts, notifs, setModal }) {
   const [filter, setFilter] = useState('active');
+  const [mode, setMode] = useState('list');
 
   const active   = shifts.filter((s) => !isPast(s.date, s.time));
   const past     = shifts.filter((s) => isPast(s.date, s.time));
@@ -822,35 +1086,47 @@ function ManagerView({ shifts, notifs, setModal }) {
         </div>
       )}
 
-      <div style={styles.filterRow}>
-        {[
-          { id: 'active',  label: 'All active',  n: active.length },
-          { id: 'open',    label: 'Open',        n: openAll.length },
-          { id: 'claimed', label: 'Covered',     n: claimed.length },
-          { id: 'past',    label: 'Past',        n: past.length },
-        ].map((f) => (
-          <button
-            key={f.id}
-            onClick={() => setFilter(f.id)}
-            style={{
-              ...styles.filterBtn,
-              ...(filter === f.id ? styles.filterBtnActive : {}),
-            }}
-          >
-            {f.label} <span style={styles.filterCount}>{f.n}</span>
-          </button>
-        ))}
-      </div>
+      <ViewModeToggle mode={mode} onChange={setMode} />
 
-      <Section title="Shifts" count={filtered.length} icon={<Calendar size={14} />}>
-        {filtered.length === 0 ? (
-          <EmptyState message="Nothing here for this filter." />
-        ) : (
-          groupShifts(filtered).map((g) => (
-            <ShiftCard key={g[0].groupId || g[0].id} group={g} variant="manager" currentUserId={null} />
-          ))
-        )}
-      </Section>
+      {mode === 'calendar' ? (
+        <CalendarView
+          shifts={shifts}
+          currentUserId={null}
+          variant="manager"
+        />
+      ) : (
+        <>
+          <div style={styles.filterRow}>
+            {[
+              { id: 'active',  label: 'All active',  n: active.length },
+              { id: 'open',    label: 'Open',        n: openAll.length },
+              { id: 'claimed', label: 'Covered',     n: claimed.length },
+              { id: 'past',    label: 'Past',        n: past.length },
+            ].map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setFilter(f.id)}
+                style={{
+                  ...styles.filterBtn,
+                  ...(filter === f.id ? styles.filterBtnActive : {}),
+                }}
+              >
+                {f.label} <span style={styles.filterCount}>{f.n}</span>
+              </button>
+            ))}
+          </div>
+
+          <Section title="Shifts" count={filtered.length} icon={<Calendar size={14} />}>
+            {filtered.length === 0 ? (
+              <EmptyState message="Nothing here for this filter." />
+            ) : (
+              groupShifts(filtered).map((g) => (
+                <ShiftCard key={g[0].groupId || g[0].id} group={g} variant="manager" currentUserId={null} />
+              ))
+            )}
+          </Section>
+        </>
+      )}
 
       <Section title="Activity log" count={notifs.length} icon={<Activity size={14} />}>
         <div style={styles.logBox}>
@@ -1261,12 +1537,14 @@ function PostShiftModal({ onClose, onSubmit }) {
 }
 
 function ConfirmClaimModal({ shifts, onClose, onConfirm }) {
-  // `shifts` is the array of OPEN shifts from the group the user clicked "Cover" on
-  const isGroup = shifts.length > 1;
-  const poster = coachById(shifts[0].postedBy);
+  // `shifts` is the array of OPEN shifts from the group the user clicked "Cover" on.
+  // Sort them chronologically so the checklist is predictable.
+  const sortedShifts = [...shifts].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const isGroup = sortedShifts.length > 1;
+  const poster = coachById(sortedShifts[0].postedBy);
 
   // Track which shift IDs are selected. Default: all of them.
-  const [selected, setSelected] = useState(() => new Set(shifts.map((s) => s.id)));
+  const [selected, setSelected] = useState(() => new Set(sortedShifts.map((s) => s.id)));
 
   const toggle = (id) => {
     setSelected((prev) => {
@@ -1276,15 +1554,15 @@ function ConfirmClaimModal({ shifts, onClose, onConfirm }) {
       return next;
     });
   };
-  const selectAll = () => setSelected(new Set(shifts.map((s) => s.id)));
+  const selectAll = () => setSelected(new Set(sortedShifts.map((s) => s.id)));
   const selectNone = () => setSelected(new Set());
 
-  const selectedShifts = shifts.filter((s) => selected.has(s.id));
+  const selectedShifts = sortedShifts.filter((s) => selected.has(s.id));
   const canConfirm = selectedShifts.length > 0;
 
   if (!isGroup) {
     // Simple single-shift confirmation (original flow)
-    const shift = shifts[0];
+    const shift = sortedShifts[0];
     return (
       <ModalShell onClose={onClose} maxWidth={460}>
         <div style={styles.modalHeader}>
@@ -1301,7 +1579,7 @@ function ConfirmClaimModal({ shifts, onClose, onConfirm }) {
         </div>
         <div style={styles.modalActions}>
           <button onClick={onClose} style={styles.secondaryBtn}>Back</button>
-          <button onClick={() => onConfirm(shifts)} style={styles.primaryBtn}>
+          <button onClick={() => onConfirm(sortedShifts)} style={styles.primaryBtn}>
             <Check size={14} strokeWidth={3} /> Yes, I'll cover it
           </button>
         </div>
@@ -1317,13 +1595,13 @@ function ConfirmClaimModal({ shifts, onClose, onConfirm }) {
         <button onClick={onClose} style={styles.closeBtn}><X size={18} /></button>
       </div>
       <p style={styles.modalIntro}>
-        <strong>{poster.name}</strong> posted {shifts.length} open classes as one request.
+        <strong>{poster.name}</strong> posted {sortedShifts.length} open classes as one request.
         Tick the ones you can cover — all, some, or just one.
       </p>
 
       <div style={styles.claimSelectToolbar}>
         <span style={styles.claimSelectCount}>
-          {selectedShifts.length} of {shifts.length} selected
+          {selectedShifts.length} of {sortedShifts.length} selected
         </span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={selectAll}  style={styles.smallBtn}>All</button>
@@ -1332,7 +1610,7 @@ function ConfirmClaimModal({ shifts, onClose, onConfirm }) {
       </div>
 
       <div style={styles.claimSelectList}>
-        {shifts.map((s) => {
+        {sortedShifts.map((s) => {
           const isOn = selected.has(s.id);
           return (
             <button
@@ -1363,9 +1641,9 @@ function ConfirmClaimModal({ shifts, onClose, onConfirm }) {
           disabled={!canConfirm}
         >
           <Check size={14} strokeWidth={3} />{' '}
-          {selectedShifts.length === shifts.length
-            ? `Cover all ${shifts.length}`
-            : `Cover ${selectedShifts.length} of ${shifts.length}`}
+          {selectedShifts.length === sortedShifts.length
+            ? `Cover all ${sortedShifts.length}`
+            : `Cover ${selectedShifts.length} of ${sortedShifts.length}`}
         </button>
       </div>
     </ModalShell>
@@ -2113,6 +2391,168 @@ const styles = {
   },
   viewToggleBtnActive: {
     background: '#c03434', color: '#fff',
+  },
+
+  // --- View-mode toggle (List / Calendar) ---
+  viewModeToggle: {
+    display: 'inline-flex', gap: 0,
+    background: '#f5f1e6', border: '1px solid #d9d2bf',
+    borderRadius: 4, padding: 3, marginBottom: 16,
+  },
+  viewModeBtn: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    padding: '7px 14px',
+    fontFamily: 'Archivo, sans-serif', fontWeight: 600,
+    fontSize: 12, color: '#3a3a3a',
+    borderRadius: 3,
+    transition: 'background 0.15s, color 0.15s',
+  },
+  viewModeBtnActive: {
+    background: '#141414', color: '#ece7da',
+  },
+
+  // --- Calendar ---
+  calHeader: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    marginBottom: 12, flexWrap: 'wrap',
+  },
+  calTitle: {
+    fontFamily: 'Bebas Neue, sans-serif',
+    fontSize: 28, letterSpacing: '0.03em',
+    color: '#141414', flex: 1,
+    lineHeight: 1,
+  },
+  calNavBtn: {
+    width: 34, height: 34, borderRadius: 4,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: '#f5f1e6', border: '1px solid #d9d2bf',
+    color: '#141414', fontSize: 20, fontWeight: 600,
+    lineHeight: 1,
+  },
+  calTodayBtn: {
+    padding: '7px 12px', borderRadius: 4,
+    background: '#141414', color: '#ece7da',
+    fontFamily: 'Archivo, sans-serif', fontWeight: 600, fontSize: 11,
+    letterSpacing: '0.05em',
+  },
+  calWeekdayRow: {
+    display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
+    gap: 2, marginBottom: 4,
+  },
+  calWeekdayLabel: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 10, letterSpacing: '0.15em', color: '#87837b',
+    textAlign: 'center', padding: '4px 0',
+  },
+  calGrid: {
+    display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)',
+    gap: 2, marginBottom: 20,
+  },
+  calCell: {
+    aspectRatio: '1 / 1',
+    minHeight: 48,
+    padding: '4px 5px',
+    background: '#f5f1e6', border: '1px solid #d9d2bf',
+    borderRadius: 3, textAlign: 'left',
+    display: 'flex', flexDirection: 'column',
+    alignItems: 'flex-start', justifyContent: 'space-between',
+    position: 'relative',
+    transition: 'background 0.1s, border-color 0.1s',
+  },
+  calCellOutMonth: {
+    opacity: 0.3,
+  },
+  calCellSelected: {
+    background: '#141414', borderColor: '#141414',
+  },
+  calDayNum: {
+    fontFamily: 'Archivo, sans-serif', fontWeight: 700,
+    fontSize: 13, color: '#141414',
+    lineHeight: 1,
+  },
+  calDayNumToday: {
+    color: '#c03434',
+  },
+  calDayIndicators: {
+    display: 'flex', gap: 3, flexWrap: 'wrap',
+    marginTop: 'auto',
+  },
+  calBadge: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 9, fontWeight: 600,
+    padding: '1px 5px', borderRadius: 2,
+    lineHeight: 1.3,
+  },
+
+  // --- Day details panel below the calendar ---
+  dayDetails: {
+    background: '#f5f1e6', border: '1px solid #d9d2bf',
+    borderRadius: 4, padding: 16, marginBottom: 24,
+  },
+  dayDetailsHeader: {
+    display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+    marginBottom: 12, gap: 10, flexWrap: 'wrap',
+    paddingBottom: 10, borderBottom: '1px solid #d9d2bf',
+  },
+  dayDetailsDate: {
+    fontFamily: 'Bebas Neue, sans-serif',
+    fontSize: 22, letterSpacing: '0.03em', color: '#141414',
+  },
+  dayDetailsCount: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase',
+    color: '#87837b',
+  },
+  dayDetailsEmpty: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    color: '#87837b', fontSize: 13, fontStyle: 'italic',
+    padding: '8px 0',
+  },
+  dayShiftList: {
+    listStyle: 'none', padding: 0, margin: 0,
+    display: 'flex', flexDirection: 'column', gap: 0,
+  },
+  dayShiftRow: {
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '10px 2px', fontSize: 12,
+    borderBottom: '1px dashed #d9d2bf',
+    flexWrap: 'wrap',
+  },
+  dayShiftDot: {
+    width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+  },
+  dayShiftTime: {
+    fontFamily: 'JetBrains Mono, monospace',
+    fontSize: 12, color: '#141414',
+    minWidth: 50, fontWeight: 500,
+  },
+  dayShiftClass: {
+    fontFamily: 'Archivo, sans-serif', fontWeight: 600,
+    fontSize: 13, color: '#141414', minWidth: 120,
+  },
+  dayShiftPeople: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    flex: 1, minWidth: 150, color: '#3a3a3a',
+  },
+  dayShiftName: {
+    fontSize: 12, color: '#3a3a3a',
+  },
+  dayShiftBtnClaim: {
+    display: 'flex', alignItems: 'center', gap: 4,
+    padding: '6px 12px', background: '#141414', color: '#ece7da',
+    fontFamily: 'Archivo, sans-serif', fontWeight: 700, fontSize: 11,
+    letterSpacing: '0.05em', borderRadius: 3,
+  },
+  dayShiftBtnCancel: {
+    display: 'flex', alignItems: 'center', gap: 4,
+    padding: '6px 10px', background: 'transparent',
+    color: '#c03434', border: '1px solid #c03434',
+    fontFamily: 'Archivo, sans-serif', fontWeight: 600, fontSize: 11,
+    borderRadius: 3,
+  },
+  dayShiftStatusText: {
+    fontFamily: 'JetBrains Mono, monospace', fontSize: 10,
+    color: '#87837b', letterSpacing: '0.08em',
   },
 
   logBox: {
